@@ -12,7 +12,16 @@ class InputOutput{
 	public:
 	
 	InputOutput(int dummy){
+		input_bin_str = ""; 
+		init_bin_str = ""; 
 		output_bin_str = "";
+		input_bit_width = 0;
+		input_bit_width_1 = 0;
+		init_bit_width = 0;
+		init_bit_width_1 = 0;
+		output_bit_width = 0;
+		cid = 1;
+		cycles = 1;
 	}
 	
 	void init(string input_hex_str, int input_bit_width, int output_bit_width, string init_hex_str = "", int init_bit_width = 0, int cycles = 1){

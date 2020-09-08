@@ -7,6 +7,20 @@
 #include "emp-tool/circuits/bit.h"
 #include <stdio.h>
 
+#define MAX_CKT_PARAM 1048576 //2^20
+
+template <typename T>
+void CktParamBound(T param){
+    if (param > MAX_CKT_PARAM){
+		std::cout << "Circuit parameter exceeds allowed limit: " << MAX_CKT_PARAM << std::endl << "If you want to allow larger netlists, edit MAX_CKT_PARAM in 'emp-tool/circuits/circuit_file.h'" << std::endl;
+		exit(-1);
+	}
+}
+template<typename T, typename... Args>
+void CktParamBound(T param, Args... args){ // recursive variadic function
+	return CktParamBound(args...);
+}
+
 namespace emp {
 #define NUM_CONST 2
 
@@ -20,11 +34,19 @@ public:
 	int num_gate, num_wire, n0, n0_0, n1, n1_0, n2, n2_0, n3;
 	int *gates;
 	block * wires;
-	int tmp, tmp2;
 	
 	CircuitFile(const char * file, bool bin = false) {
-		FILE * f;
-		
+		num_gate = 0;
+		num_wire = 0;
+		n0 = 0;
+		n0_0 = 0;
+		n1 = 0;
+		n1_0 = 0;
+		n2 = 0;
+		n2_0 = 0;
+		n3 = 0;
+
+		FILE * f;	
 		if (!bin) f = fopen(file, "r");
 		else f = fopen(file, "rb");
 		if (f == NULL) {
@@ -33,22 +55,25 @@ public:
 		}
 		
 		if (!bin){
+			int tmp = 0, tmp2 = 0;
+
 			tmp2=fscanf(f, "%d%d\n", &num_gate, &num_wire);
 			tmp2=fscanf(f, "%d%d%d%d%d%d%d\n", &n0, &n0_0, &n1, &n1_0, &n2, &n2_0, &n3);
+			CktParamBound <int>(num_gate, num_wire, n0, n0_0, n1, n1_0, n2, n2_0, n3);
 			tmp2=fscanf(f, "\n");
 			char str[10];
 			gates = new int[num_gate*4];
-			//wires = new block[num_wire];
+			wires = nullptr;
 			for(int i = 0; i < num_gate; ++i) {
 				tmp2=fscanf(f, "%d", &tmp);
 				if (tmp == 2) {
-					tmp2=fscanf(f, "%d%d%d%d%s", &tmp, &gates[4*i], &gates[4*i+1], &gates[4*i+2], str);
+					tmp2=fscanf(f, "%d%d%d%d%10s", &tmp, &gates[4*i], &gates[4*i+1], &gates[4*i+2], str);
 					if (str[0] == 'A') gates[4*i+3] = AND_GATE;
 					else if (str[0] == 'X') gates[4*i+3] = XOR_GATE;
 					else if (str[0] == 'D') gates[4*i+3] = DFF_GATE;
 				}
 				else if (tmp == 1) {
-					tmp2=fscanf(f, "%d%d%d%s", &tmp, &gates[4*i], &gates[4*i+2], str);
+					tmp2=fscanf(f, "%d%d%d%10s", &tmp, &gates[4*i], &gates[4*i+2], str);
 					gates[4*i+3] = NOT_GATE;
 				}
 			}
@@ -66,6 +91,7 @@ public:
 			n2        =  circuit_params[6]; 
 			n2_0      =  circuit_params[7]; 
 			n3        =  circuit_params[8]; 
+			CktParamBound <int>(num_gate, num_wire, n0, n0_0, n1, n1_0, n2, n2_0, n3);
 			
 			gates = new int[num_gate*4];
 			CHECK_EXPR(fread((char*)gates, num_gate*4*sizeof(int), 1, f) == 1)						
@@ -80,6 +106,7 @@ public:
 		n1 = cf.n1;
 		n2 = cf.n2;
 		n3 = cf.n3;
+		CktParamBound <int>(num_gate, num_wire, n0, n0_0, n1, n1_0, n2, n2_0, n3);
 		gates = new int[num_gate*4];
 		wires = new block[num_wire];
 		memcpy(gates, cf.gates, num_gate*4*sizeof(int));

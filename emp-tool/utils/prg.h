@@ -46,7 +46,7 @@ class PRG { public:
 		counter = 0;
 	}
 
-	void random_data(void *data, int nbytes) {
+	void random_data(void *data, uint64_t nbytes) {
 		random_block((block *)data, nbytes/16);
 		if (nbytes % 16 != 0) {
 			block extra;
