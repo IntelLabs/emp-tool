@@ -1,4 +1,4 @@
-### This branch is adapted for [TinyGarble 2.0](https://github.com/IntelLabs/TinyGarble2.0). 
+### This fork is adapted for [TinyGarble 2.0](https://github.com/IntelLabs/TinyGarble2.0). 
 
 # Installation
 
