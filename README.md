@@ -87,3 +87,4 @@ assert(c.open(decom, com, data, 1024*1024)); // open, return if the decommitment
 
 ## [Acknowledgement, Reference, and Questions](https://github.com/emp-toolkit/emp-readme/blob/master/README.md#citation)
 
+> Reviewed, 12/16/2022 michaelbeale-il
